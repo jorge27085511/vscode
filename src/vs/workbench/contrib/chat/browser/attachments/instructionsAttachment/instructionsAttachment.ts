@@ -27,6 +27,9 @@ import { ChatInstructionsAttachmentModel } from '../../chatAttachmentModel/chatI
 import { getDefaultHoverDelegate } from '../../../../../../base/browser/ui/hover/hoverDelegateFactory.js';
 import { getFlatContextMenuActions } from '../../../../../../platform/actions/browser/menuEntryActionViewItem.js';
 import { PROMPT_SNIPPET_FILE_EXTENSION } from '../../../common/promptSyntax/contentProviders/promptContentsProviderBase.js';
+import { MarkdownString } from '../../../../../../base/common/htmlContent.js';
+import { renderMarkdown } from '../../../../../../base/browser/markdownRenderer.js';
+import { IconLabel } from '../../../../../../base/browser/ui/iconLabel/iconLabel.js';
 
 /**
  * Widget for a single prompt instructions attachment.
@@ -136,7 +139,6 @@ export class InstructionsAttachmentWidget extends Disposable {
 		label.setFile(URI.file(fileWithoutExtension), {
 			fileKind: FileKind.FILE,
 			hidePath: true,
-			range: undefined,
 			title,
 			icon: ThemeIcon.fromId(Codicon.bookmark.id),
 			extraClasses: [],
@@ -144,7 +146,13 @@ export class InstructionsAttachmentWidget extends Disposable {
 		this.domNode.ariaLabel = ariaLabel;
 		this.domNode.tabIndex = 0;
 
-		const hintElement = dom.append(this.domNode, dom.$('span.chat-implicit-hint', undefined, promptLabel));
+		// const promptMarkdownLabel = new MarkdownString(`${promptLabel} \$(alert)`, { supportThemeIcons: true });
+		// const promptLabelElement = renderMarkdown(promptMarkdownLabel, { inline: true, className: 'chat-implicit-hint' });
+		// labelElement.innerHTML = promptLabelElement.element.innerHTML;
+		const iconLabel = new IconLabel(this.domNode, { supportIcons: true });
+		const labelElement = dom.$('span.chat-implicit-hint', undefined, iconLabel.element);
+		iconLabel.setLabel(`${promptLabel} \$(alert)`);
+		const hintElement = dom.append(this.domNode, labelElement);
 		this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('element'), hintElement, title));
 
 		// create the `remove` button
